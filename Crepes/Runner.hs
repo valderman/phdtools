@@ -110,10 +110,10 @@ addTime c proj hours (Just cat) (Just date) = do
   execute c "INSERT INTO time VALUES (?,?,?,?)" (pid, cid, show date, hours)
   quotahrs <- query c "SELECT MIN(p.quota), SUM(t.hours) FROM time AS t \
                       \JOIN projects AS p ON p.id = t.pid \
-                      \WHERE p.id = ?" (Only pid) :: IO [(Double, Double)]
+                      \WHERE p.id = ?" (Only pid) :: IO [(Maybe Double,Double)]
   putStr "ok"
   case quotahrs of
-    [(quota, hours)] -> do
+    [(Just quota, hours)] -> do
       putStrLn $ "; " ++ show hours ++ " hours used out of " ++ show quota ++
                  " (" ++ show (round (100*(hours/quota))) ++ "%)"
     _ -> do
