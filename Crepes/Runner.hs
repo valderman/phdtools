@@ -78,7 +78,7 @@ performCommand c cmd =
     
     go (Help) = do
       putStrLn "crepes commands:"
-      putStrLn "  create <project>"
+      putStrLn "  create <project> [quota]"
       putStrLn "  delete <project>"
       putStrLn "  projects"
       putStrLn "  newcat <cat>"
@@ -92,6 +92,8 @@ performCommand c cmd =
       putStrLn "  help"
       putStrLn "  <project> <hours> [cat] [yyyy-mm-dd]"
       putStrLn ""
+      putStrLn "Parameters in angle brackets are mandatory; parameters in\n\
+               \normal brackets are optional.\n"
       putStrLn "The <project> parameter may be omitted if you are calling\n\
                \crepes from a directory where you have previously ran\n\
                \'crepes default <project>' to set a default project.\n"
