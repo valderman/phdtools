@@ -8,6 +8,13 @@ import System.FilePath
 import System.IO.Unsafe
 import System.Exit
 import Database.SQLite.Simple
+import Data.Version
+
+version :: Version
+version = Version [0,1] []
+
+versionString :: String
+versionString = showVersion version
 
 -- | Path to app data directory.
 {-# NOINLINE appDir #-}
