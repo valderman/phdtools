@@ -57,7 +57,6 @@ performCommand c cmd =
 
     go (AddTime proj hours mcat mdate) = do
       addTime c proj hours mcat mdate
-      putStrLn "ok"
 
     go (Report (Just proj)) = do
       projReport c proj
@@ -109,6 +108,16 @@ addTime c proj hours (Just cat) (Just date) = do
     [[cid]] <- query c "SELECT id FROM cats WHERE name = ?" (Only cat)
     return cid
   execute c "INSERT INTO time VALUES (?,?,?,?)" (pid, cid, show date, hours)
+  quotahrs <- query c "SELECT MIN(p.quota), SUM(t.hours) FROM time AS t \
+                      \JOIN projects AS p ON p.id = t.pid \
+                      \WHERE p.id = ?" (Only pid) :: IO [(Double, Double)]
+  putStr "ok"
+  case quotahrs of
+    [(quota, hours)] -> do
+      putStrLn $ "; " ++ show hours ++ " hours used out of " ++ show quota ++
+                 " (" ++ show (round (100*(hours/quota))) ++ "%)"
+    _ -> do
+      putStrLn ""
 addTime c proj hours Nothing mdate = do
   -- Kind of silly, roundabout way of looking up the uncategorized category...
   cat <- head . head <$> query_ c "SELECT name FROM cats WHERE id = 0"
