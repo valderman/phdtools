@@ -1,6 +1,8 @@
 module Main where
 import Control.Applicative
+import Control.Exception
 import System.Environment
+import System.Exit
 import Crepes.Command
 import Crepes.Runner
 import Crepes.Environment
@@ -14,5 +16,6 @@ main = do
     _  -> do
       mcmd <- parseCommand defp . unwords <$> getArgs
       case mcmd of
-        Just cmd -> withSQLite dbFile $ flip performCommand cmd
-        _        -> crepesError "Invalid command; try 'crepes help'"
+        Just cmd -> catch (withSQLite dbFile $ flip performCommand cmd) $ \(CE err) -> do
+                      putStrLn err >> exitFailure
+        _        -> putStrLn "Invalid command; try 'crepes help'" >> exitFailure

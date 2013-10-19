@@ -1,14 +1,21 @@
-{-# LANGUAGE OverloadedStrings #-}
+{-# LANGUAGE OverloadedStrings, DeriveDataTypeable,
+             GeneralizedNewtypeDeriving #-}
 -- | Reads and manipulates Crepes' environment.
 module Crepes.Environment where
 import Control.Applicative
 import Control.Monad
+import Control.Exception
 import System.Directory
 import System.FilePath
 import System.IO.Unsafe
 import System.Exit
 import Database.SQLite.Simple
 import Data.Version
+import Data.Typeable
+
+newtype CrepesException = CE String
+  deriving (Typeable, Show)
+instance Exception CrepesException
 
 version :: Version
 version = Version [0,1] []
@@ -73,7 +80,5 @@ initialize c = do
   execute_ c "INSERT INTO cats VALUES (0, 'uncategorized')"
 
 -- | Print an error, then exit.
-crepesError :: String -> IO ()
-crepesError str = do
-  putStrLn str
-  exitFailure
+crepesError :: String -> IO a
+crepesError = throw . CE

@@ -13,20 +13,20 @@ repl = do
     putStrLn $ "Type 'help' for help, 'quit' to exit."
     withSQLite dbFile $ runInputT defaultSettings . go
   where
-    go c = flip catch justQuit $ do
+    go c = do
       s <- getInputLine "> "
       case fmap (runParser exitWords) s of
         Just Nothing -> do
           defProj <- liftIO getDefaultProject
           case s >>= parseCommand defProj of
             Nothing  -> outputStrLn "Invalid command; try 'help'"
-            Just cmd -> liftIO $ performCommand c cmd
+            Just cmd -> catch (liftIO $ performCommand c cmd) exHandler
           go c
         _ -> do
-          justQuit undefined
+          justQuit
 
-    justQuit :: SomeException -> InputT IO ()
-    justQuit _ = outputStrLn "bye!"
+    exHandler (CE err) = outputStrLn err
+    justQuit = outputStrLn "bye!"
 
     exitWords = do
       _ <- whitespace
