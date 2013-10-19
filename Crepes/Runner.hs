@@ -9,6 +9,7 @@ import System.IO
 import Data.Time.Clock
 import Data.Time.Calendar
 import Data.Char
+import Data.List
 import Database.SQLite.Simple
 import Crepes.Command
 import Crepes.Environment
@@ -147,16 +148,24 @@ printReport mquota proj cats = do
   where
     byCat = do
       putStrLn $ "Hours spent by category:"
-      mapM_ (printCat . addPadding) cats
+      mapM_ (printCat . addPadding) (sortBy mostHours cats)
       putStrLn $ "  " ++ replicate padding '-'
-      putStrLn $ "  " ++ padRight padding "total" ++ show total
+      putStrLn $ "  " ++ padRight padding "total"
+                      ++ padLeft hrspadding (show total)
       putStrLn ""
 
-    printCat (cat, hrs) = putStrLn $ "  " ++ cat ++ show hrs
+    printCat (cat, hrs, hrs') =
+      putStrLn $ "  " ++ cat ++ hrs' ++ percentage hrs
     total = sum $ map snd cats
     padding = maximum (map (length . fst) cats) + 4
+    hrspadding = maximum (map (length . show . snd) cats)
     padRight n s = s ++ replicate (n-length s) ' '
-    addPadding (cat, hrs) = (padRight padding cat, hrs)
+    padLeft n s = replicate (n-length s) ' ' ++ s
+    addPadding (cat, hrs) = (padRight padding cat,
+                             hrs,
+                             padLeft hrspadding (show hrs))
+    percentage h = concat ["     ", show $ round $ 100*(h/total), "%"]
+    mostHours (_, h1) (_, h2) = compare h2 h1
 
 -- | Have the user confirm an action by typing in an annoying sentence.
 confirm :: IO () -> IO ()
