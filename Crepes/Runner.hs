@@ -45,7 +45,10 @@ performCommand c cmd =
       putStrLn $ "Are you sure you want to PERMANENTLY delete the category '"
                ++ cat ++ "'?"
       putStrLn $ "All time logged for the category will become uncategorized."
-      confirm $ execute c "DELETE FROM categories WHERE cat = ?" (Only cat)
+      confirm $ flip catch (noSuchCat cat) $ do
+        [[cid]] <- query c "SELECT id FROM cats WHERE name = ?" (Only cat)
+        execute c "UPDATE time SET cat = 0 WHERE cat = ?" (Only (cid::Int))
+        execute c "DELETE FROM cats WHERE name = ?" (Only cat)
 
     go (ListCats) = do
       q <- query_ c "SELECT name FROM cats"
@@ -96,10 +99,12 @@ performCommand c cmd =
 --   TODO: warnings when getting close to quota, etc.
 addTime :: Connection -> ProjectName -> Double -> Maybe Cat -> Maybe Date -> IO ()
 addTime c proj hours (Just cat) (Just date) = do
-  [[pid]] <- flip catch (\e -> noSuchProj proj e >> return [[0::Int]]) $ do
-    query c "SELECT id FROM projects WHERE name = ?" (Only proj)
-  [[cid]] <- flip catch (\e -> noSuchCat cat e >> return [[0::Int]]) $ do
-    query c "SELECT id FROM cats WHERE name = ?" (Only cat)
+  pid <- flip catch (\e -> noSuchProj proj e >> return (0::Int)) $ do
+    [[pid]] <- query c "SELECT id FROM projects WHERE name = ?" (Only proj)
+    return pid
+  cid <- flip catch (\e -> noSuchCat cat e >> return (0::Int)) $ do
+    [[cid]] <- query c "SELECT id FROM cats WHERE name = ?" (Only cat)
+    return cid
   execute c "INSERT INTO time VALUES (?,?,?,?)" (pid, cid, show date, hours)
 addTime c proj hours Nothing mdate = do
   -- Kind of silly, roundabout way of looking up the uncategorized category...
@@ -172,6 +177,6 @@ createError name _ = crepesError $
 createCatError name _ = crepesError $
   "Couldn't create category '" ++ name ++ "'; maybe it already exists?"
 noSuchProj name _ = crepesError $
-  "Project '" ++ name ++ "' doesn't exist"
+  "Project '" ++ name ++ "' doesn't exist!"
 noSuchCat name _ = crepesError $
-  "Category '" ++ name ++ "' doesn't exist"
+  "Category '" ++ name ++ "' doesn't exist!"
