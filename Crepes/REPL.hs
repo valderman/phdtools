@@ -14,7 +14,8 @@ repl = do
     withSQLite dbFile $ runInputT defaultSettings . go
   where
     go c = do
-      s <- getInputLine "> "
+      defProj <- liftIO getDefaultProject
+      s <- getInputLine (prompt defProj)
       case fmap (runParser exitWords) s of
         Just Nothing -> do
           defProj <- liftIO getDefaultProject
@@ -27,6 +28,9 @@ repl = do
 
     exHandler (CE err) = outputStrLn err
     justQuit = outputStrLn "bye!"
+
+    prompt (Just dp) = dp ++ "> "
+    prompt _         = "> "
 
     exitWords = do
       _ <- whitespace
