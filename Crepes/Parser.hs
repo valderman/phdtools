@@ -76,9 +76,9 @@ atLeast n p = do
   xs <- atLeast (n-1) p
   return (x:xs)
 
--- | Parse zero or more characters of whitespace.
+-- | Parse one or more characters of whitespace.
 whitespace :: Parse String
-whitespace = atLeast 0 $ charP isSpace
+whitespace = atLeast 1 $ charP isSpace
 
 -- | Parse a non-empty word. A word is a string of at least one non-whitespace
 --   character.
