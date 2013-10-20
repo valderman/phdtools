@@ -32,17 +32,19 @@ prettyDate :: Date -> String
 prettyDate (Date (Year y) m (Day d)) = show d ++ " " ++ show m ++ " " ++ show y
 
 data Command where
-  Create   :: ProjectName -> Maybe Quota -> Command
-  Delete   :: ProjectName -> Command
-  Projects :: Command
-  SetQuota :: ProjectName -> Maybe Quota -> Command
-  AddCat   :: Cat -> Command
-  DelCat   :: Cat -> Command
-  ListCats :: Command
-  AddTime  :: ProjectName -> Double -> Maybe Cat -> Maybe Date -> Command
-  Report   :: Maybe ProjectName -> Command
-  Def      :: Maybe ProjectName -> Command
-  Help     :: Command
+  Create    :: ProjectName -> Maybe Quota -> Command
+  Delete    :: ProjectName -> Command
+  Projects  :: Command
+  Rename    :: ProjectName -> ProjectName -> Command
+  SetQuota  :: ProjectName -> Maybe Quota -> Command
+  AddCat    :: Cat -> Command
+  DelCat    :: Cat -> Command
+  ListCats  :: Command
+  RenameCat :: Cat -> Cat -> Command
+  AddTime   :: ProjectName -> Double -> Maybe Cat -> Maybe Date -> Command
+  Report    :: Maybe ProjectName -> Command
+  Def       :: Maybe ProjectName -> Command
+  Help      :: Command
 
 -- | Parse a command. References to projects and categories are still
 --   unresolved.
@@ -61,9 +63,11 @@ parseCommand defaultProject =
       c <- oneOf [string "create"    >> space >> create,
                   string "delete"    >> space >> fmap Delete project,
                   string "projects"  >> return Projects,
+                  string "rename"    >> space >> renameProj,
                   string "newcat"    >> space >> fmap AddCat project,
                   string "delcat"    >> space >> fmap DelCat project,
                   string "cats"      >> return ListCats,
+                  string "renamecat" >> space >> renameCat,
                   string "report"    >> space >> fmap (Report . Just) project,
                   string "quota"     >> space >> setQuota,
                   string "noquota"   >> space >> noQuota,
@@ -78,6 +82,18 @@ parseCommand defaultProject =
                         quotedString '\'',
                         word `suchThat` (not . isDigit . head)]
     
+    -- rename a project
+    renameProj = do
+      from <- project <* whitespace
+      to <- identifier
+      return $ Rename from to
+
+    -- rename a category
+    renameCat = do
+      from <- identifier <* whitespace
+      to <- identifier
+      return $ RenameCat from to
+
     -- quota command
     setQuota = do
       name <- project <* whitespace

@@ -34,6 +34,11 @@ performCommand c cmd =
       q <- query_ c "SELECT name FROM projects"
       mapM_ (putStrLn . head) q
 
+    go (Rename from to) = do
+      flip catch (noSuchProj from) $ do
+        execute c "UPDATE projects SET name = ? WHERE name = ?" (to, from)
+        putStrLn "ok"
+
     go (SetQuota name quota) = do
       execute c "UPDATE projects SET quota = ? WHERE name = ?" (quota, name)
       putStrLn "ok"
@@ -55,6 +60,11 @@ performCommand c cmd =
       q <- query_ c "SELECT name FROM cats"
       mapM_ (putStrLn . head) q
 
+    go (RenameCat from to) = do
+      flip catch (noSuchCat from) $ do
+        execute c "UPDATE cats SET name = ? WHERE name = ?" (to, from)
+        putStrLn "ok"
+    
     go (AddTime proj hours mcat mdate) = do
       addTime c proj hours mcat mdate
 
@@ -80,9 +90,11 @@ performCommand c cmd =
       putStrLn "  create <project> [quota]"
       putStrLn "  delete <project>"
       putStrLn "  projects"
+      putStrLn "  rename <project> <newname>"
       putStrLn "  newcat <cat>"
       putStrLn "  delcat <cat>"
       putStrLn "  cats"
+      putStrLn "  renamecat <cat> <newname> (BROKEN!)"
       putStrLn "  report <project>"
       putStrLn "  quota <project> <hours>"
       putStrLn "  noquota <project>"
