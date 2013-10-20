@@ -94,7 +94,7 @@ performCommand c cmd =
       putStrLn "  newcat <cat>"
       putStrLn "  delcat <cat>"
       putStrLn "  cats"
-      putStrLn "  renamecat <cat> <newname> (BROKEN!)"
+      putStrLn "  renamecat <cat> <newname>"
       putStrLn "  report <project>"
       putStrLn "  quota <project> <hours>"
       putStrLn "  noquota <project>"
