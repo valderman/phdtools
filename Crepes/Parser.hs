@@ -91,11 +91,17 @@ words = atLeast 0 $ word <* whitespace
 
 -- | Parse an Int.
 int :: Parse Int
-int = read <$> atLeast 1 (charP isDigit)
+int = oneOf [read <$> atLeast 1 (charP isDigit),
+             char '-' >> (0-) . read <$> atLeast 1 (charP isDigit)]
 
 -- | Parse a floating point number.
 double :: Parse Double
-double = do
+double = oneOf [positiveDouble,
+                char '-' >> (0-) <$> positiveDouble]
+
+-- | Parse a non-negative floating point number.
+positiveDouble :: Parse Double
+positiveDouble = do
   first <- atLeast 1 $ charP isDigit
   msecond <- possibly $ char '.' *> atLeast 1 (charP isDigit)
   case msecond of
