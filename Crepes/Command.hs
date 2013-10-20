@@ -114,11 +114,11 @@ parseCommand defaultProject =
     -- Parse an add time command
     addTime = do
       proj <- project <* whitespace
-      time <- double  <* possibly whitespace
+      time <- double  <* whitespace
       oneOf [do cat <- word <* whitespace
                 d <- date
                 return $ AddTime proj time (Just cat) (Just d),
-             do d <- date
+             do d <- date <* whitespace
                 return $ AddTime proj time Nothing (Just d),
              do cat <- word
                 return $ AddTime proj time (Just cat) Nothing,
