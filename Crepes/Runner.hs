@@ -113,10 +113,10 @@ performCommand c cmd =
 --   TODO: warnings when getting close to quota, etc.
 addTime :: Connection -> ProjectName -> Double -> Maybe Cat -> Maybe Date -> IO ()
 addTime c proj hours (Just cat) (Just date) = do
-  pid <- flip catch (\e -> noSuchProj proj e >> return (0::Int)) $ do
+  pid <- flip catch (\e -> noSuchProj proj e :: IO Int) $ do
     [[pid]] <- query c "SELECT id FROM projects WHERE name = ?" (Only proj)
     return pid
-  cid <- flip catch (\e -> noSuchCat cat e >> return (0::Int)) $ do
+  cid <- flip catch (\e -> noSuchCat cat e :: IO Int) $ do
     [[cid]] <- query c "SELECT id FROM cats WHERE name = ?" (Only cat)
     return cid
   execute c "INSERT INTO time VALUES (?,?,?,?)" (pid, cid, show date, hours)
@@ -127,7 +127,8 @@ addTime c proj hours (Just cat) (Just date) = do
   case quotahrs of
     [(Just quota, hours)] -> do
       putStrLn $ "; " ++ show hours ++ " hours used out of " ++ show quota ++
-                 " (" ++ show (round (100*(hours/quota))) ++ "%)"
+                 " (" ++ show (round (100*(hours/quota))) ++ "%, " ++
+                 show (quota-hours) ++ " left)"
     _ -> do
       putStrLn ""
 addTime c proj hours Nothing mdate = do
@@ -202,8 +203,8 @@ confirm act = do
     _                            -> putStrLn "aborting"
 
 -- | More specific error messages.
-createError, createCatError :: String -> SomeException -> IO ()
-noSuchProj, noSuchCat :: String -> SomeException -> IO ()
+createError, createCatError :: String -> SomeException -> IO a
+noSuchProj, noSuchCat :: String -> SomeException -> IO a
 createError name _ = crepesError $
   "Couldn't create project '" ++ name ++ "'; maybe it already exists?"
 createCatError name _ = crepesError $
