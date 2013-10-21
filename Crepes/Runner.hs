@@ -143,7 +143,7 @@ addTime c proj hours mcat Nothing = do
 
 -- | Generate and print a project report.
 projReport :: Connection -> ProjectName -> IO ()
-projReport c proj = do
+projReport c proj = flip catch (noSuchProj proj) $ do
   byCat <- flip (query c) (Only proj)
     "SELECT c.name, SUM(t.hours) FROM time AS t \
     \JOIN projects AS p ON p.id = t.pid \
