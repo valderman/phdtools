@@ -6,6 +6,15 @@ It's mainly intended as a tool for doctoral students to keep track of their
 teaching hours, but is hopefully general enough to be useful in other contexts
 as well.
 
+All data is kept in SQLite format (stored in ~/.crepes/timereport.sqlite) so
+it's easy to run your own reports over it if the ones provided out of the box
+don't cut it. If you do, please consider sending in a patch to enable Crepes
+to generate your report out of the box - if it's useful to you it will probably
+be useful to someone else as well.
+
+Another benefit of the SQLite format is that if you find Crepes lacking,
+migrating to something better is trivial.
+
 Usage
 =====
 
