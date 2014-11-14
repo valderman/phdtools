@@ -1,0 +1,14 @@
+pass: |
+  Good, you pass!
+
+fail: |
+  You fail, because:
+
+indent: |
+  Your indentation is bad.
+
+compile: |
+  Your program doesn't compile.
+
+test: |
+  Your program fails the test suite.
