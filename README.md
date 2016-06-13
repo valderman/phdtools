@@ -15,3 +15,6 @@ Programs
   * mkreply: build texts using templates and simple variable substitution.
     Useful for generating rejection messages for lab submissions from a list
     of canned responses, since students generally all make the same mistakes.
+
+  * unpack: unpack any archive with a variety of options, including tarbomb
+    protection.
