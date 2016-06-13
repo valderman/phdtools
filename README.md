@@ -9,12 +9,12 @@ things.
 Programs
 --------
 
-  * crepes: Course REPorting Excellence System - a program to keep track of
+  * `crepes`: Course REPorting Excellence System - a program to keep track of
     the hours spent on courses and other projects.
 
-  * mkreply: build texts using templates and simple variable substitution.
+  * `mkreply`: build texts using templates and simple variable substitution.
     Useful for generating rejection messages for lab submissions from a list
     of canned responses, since students generally all make the same mistakes.
 
-  * unpack: unpack any archive with a variety of options, including tarbomb
+  * `unpack`: unpack any archive with a variety of options, including tarbomb
     protection.
