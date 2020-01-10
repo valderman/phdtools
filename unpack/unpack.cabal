@@ -17,8 +17,10 @@ executable unpack
   main-is:
     unpack.hs
   build-depends:
-    base             >=4.8   && <4.9,
+    base             >=4.8   && <5,
     shellmate        >=0.3.1 && <0.4,
     shellmate-extras >=0.3.1 && <0.4
   default-language:
     Haskell2010
+  ghc-options:
+    -threaded
